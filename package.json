@@ -1,0 +1,48 @@
+{
+	"name": "hybrid-bridge",
+	"version": "0.1.0",
+	"description": "A reliable, async-queue based Hybrid JS ↔ Native bridge with request/response and ready handshake",
+	"keywords": [
+		"hybrid",
+		"bridge",
+		"webview",
+		"android",
+		"ios",
+		"async",
+		"postmessage"
+	],
+	"author": "Your Name",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Matthew-Gu/hybrid-bridge.git"
+	},
+	"type": "module",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"clean": "rm -rf dist",
+		"lint": "eslint src --ext .ts",
+		"typecheck": "tsc --noEmit",
+		"prepublishOnly": "npm run clean && npm run build"
+	},
+	"devDependencies": {
+		"typescript": "^5.3.3",
+		"tsup": "^8.0.0",
+		"@types/node": "^20.11.0",
+		"eslint": "^8.56.0"
+	}
+}
