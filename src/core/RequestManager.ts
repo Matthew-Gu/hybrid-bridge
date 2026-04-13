@@ -1,7 +1,7 @@
 interface Pending {
 	resolve: (v: any) => void;
 	reject: (e: Error) => void;
-	timeoutId: number;
+	timeoutId: ReturnType<typeof setTimeout>;
 }
 
 export class RequestManager {
@@ -13,7 +13,7 @@ export class RequestManager {
 		const effective = timeout && timeout > 0 ? timeout : this.defaultTimeout;
 
 		return new Promise<T>((resolve, reject) => {
-			const timeoutId = window.setTimeout(() => {
+			const timeoutId = setTimeout(() => {
 				this.pending.delete(requestId);
 				reject(new Error(`Request timeout: ${requestId}`));
 			}, effective);
@@ -28,6 +28,18 @@ export class RequestManager {
 		clearTimeout(item.timeoutId);
 		this.pending.delete(requestId);
 		item.resolve(data);
+	}
+
+	reject(requestId: string, reason: unknown) {
+		const item = this.pending.get(requestId);
+		if (!item) return;
+		clearTimeout(item.timeoutId);
+		this.pending.delete(requestId);
+		item.reject(reason instanceof Error ? reason : new Error(String(reason)));
+	}
+
+	has(requestId: string) {
+		return this.pending.has(requestId);
 	}
 
 	rejectAll(reason = 'destroyed') {

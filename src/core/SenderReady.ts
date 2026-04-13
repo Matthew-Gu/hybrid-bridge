@@ -1,25 +1,31 @@
 export class SenderReady {
 	private ready = false;
-	private resolves: (() => void)[] = [];
-
-	isReady() {
-		return this.ready;
-	}
+	private waiters: Array<{
+		resolve: () => void;
+		reject: (error: Error) => void;
+	}> = [];
+	private closed = false;
 
 	markReady() {
-		if (this.ready) return;
+		if (this.ready || this.closed) return;
 		this.ready = true;
-		this.resolves.forEach((r) => r());
-		this.resolves.length = 0;
+		this.waiters.forEach(({ resolve }) => resolve());
+		this.waiters.length = 0;
 	}
 
 	wait(): Promise<void> {
 		if (this.ready) return Promise.resolve();
-		return new Promise((res) => this.resolves.push(res));
+		if (this.closed) return Promise.reject(new Error('Bridge destroyed'));
+		return new Promise((resolve, reject) => {
+			this.waiters.push({ resolve, reject });
+		});
 	}
 
-	reset() {
+	close(reason = 'Bridge destroyed') {
+		if (this.closed) return;
 		this.ready = false;
-		this.resolves.length = 0;
+		this.closed = true;
+		this.waiters.forEach(({ reject }) => reject(new Error(reason)));
+		this.waiters.length = 0;
 	}
 }

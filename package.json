@@ -34,7 +34,7 @@
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",
-		"clean": "rm -rf dist",
+		"clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
 		"lint": "eslint src --ext .ts",
 		"typecheck": "tsc --noEmit",
 		"prepublishOnly": "npm run clean && npm run build"
